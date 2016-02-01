@@ -1,7 +1,7 @@
 usb-libvirt-hotplug
 ===================
 
-This repository contains a script that can be used to attach and detach USB devices from virtual machines based on udev rules.
+This is a script that can be used to attach and detach USB devices from virtual machines based on udev rules.
 This allows matching on any attributes available to udev, for example the USB port the device is plugged into.
 
 
