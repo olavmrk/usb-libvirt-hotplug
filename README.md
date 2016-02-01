@@ -47,6 +47,13 @@ It may be tempting to use `ATTR{busnum}` and `ATTR{devpath}` to match the USB bu
 However, those attributes are only available when the device is added, and not when the device is removed.
 This leads to the device not being properly removed from the VM.
 
+After the udev rule file has been saved, you will probably need to ask udev to reload its configuration files.
+E.g.:
+
+```
+$ sudo service udev reload
+```
+
 
 Troubleshooting
 ---------------
