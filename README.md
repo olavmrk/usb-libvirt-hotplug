@@ -126,7 +126,7 @@ $ virsh dumpxml testvm-01
 
 The output will contain something like:
 
-```
+```xml
 <domain type='kvm' id='3'>
   <name>testvm-01</name>
   <!-- ... -->
