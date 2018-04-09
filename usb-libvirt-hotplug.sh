@@ -99,6 +99,7 @@ DEVNUM=$((10#$DEVNUM))
 # update XML from stdin.
 #
 echo "Running virsh ${COMMAND} ${DOMAIN} for USB bus=${BUSNUM} device=${DEVNUM}:" >&2
+cat <<ENDAT | at now
 virsh "${COMMAND}" "${DOMAIN}" /dev/stdin <<END
 <hostdev mode='subsystem' type='usb'>
   <source>
@@ -106,3 +107,4 @@ virsh "${COMMAND}" "${DOMAIN}" /dev/stdin <<END
   </source>
 </hostdev>
 END
+ENDAT
