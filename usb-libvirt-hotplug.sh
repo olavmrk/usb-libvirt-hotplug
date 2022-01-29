@@ -67,8 +67,8 @@ if [ "${ACTION}" == 'add' ]; then
 elif [ "${ACTION}" == 'remove' ]; then
   COMMAND='detach-device'
 else
-  echo "Invalid udev ACTION: ${ACTION}" >&2
-  exit 1
+  echo "Ignored udev ACTION: ${ACTION}" >&2
+  exit 0
 fi
 
 if [ -z "${BUSNUM}" ]; then
