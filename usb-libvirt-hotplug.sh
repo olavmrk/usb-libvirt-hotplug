@@ -64,6 +64,8 @@ if [ -z "${ACTION}" ]; then
 fi
 if [ "${ACTION}" == 'add' ]; then
   COMMAND='attach-device'
+elif [ "${ACTION}" == 'bind' ]; then
+  COMMAND='attach-device'
 elif [ "${ACTION}" == 'remove' ]; then
   COMMAND='detach-device'
 else
