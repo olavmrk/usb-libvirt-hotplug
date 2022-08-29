@@ -1,0 +1,69 @@
+#!/bin/bash
+
+if [ "$EUID" -ne 0 ]
+  then echo "Please run as root"
+  exit
+fi
+
+
+
+HOTPLUG_SCRIPT="/usr/bin/usb-libvirt-hotplug"
+
+
+
+echo "Checking if usb-libvirt-hotplug script is installed..."
+if [ ! -f "$HOTPLUG_SCRIPT" ] 
+then
+	echo "Didn't detect usb-libvirt-hotplug installed. Installing..."
+	cp usb-libvirt-hotplug $HOTPLUG_SCRIPT
+	sudo chmod +x $HOTPLUG_SCRIPT
+else 
+	echo "Skipping script installation: usb-libvirt-hotplug is installed."
+fi
+
+
+
+python3 monitor.py
+
+
+
+YN=y
+echo "Do you want to add found usb ports automatically to udev rules? Y/n"
+read YN
+
+if [ $YN = y ]
+then
+	echo ""
+	echo "Proceeding with automatic addition of udev rules..."
+	echo "USB devices will be attached to the first started VM on your host. If you want to change this behaviour,"
+	echo "go to your udev rules, find 99-libvirt-usb-hotplug.rules and add the name of the vm you want to reroute devices to as an option to the RUN script."
+	echo ""
+	
+	while IFS= read -r line; do
+	    devpath=$(echo $line | sed "s/DEVPATH=//")
+	    echo "Adding udev rule for $devpath..."
+	    echo "SUBSYSTEM==\"usb\",DEVPATH==\"$devpath\",RUN+=\"$HOTPLUG_SCRIPT\"" >> /etc/udev/rules.d/99-libvirt-usb-hotplug.rules
+	done < usb.portlist
+	
+	echo ""
+	echo "Should the script remove usb.portlist file?  Y/n"
+	echo "(All devices from it were added to udev rules, and it is not necessary for the rerouting to function properly)"
+	read YN
+	
+	YN=y
+	if [ $YN = y ]
+	then
+		echo "Ok, removing usb.portlist file..."
+		rm usb.portlist
+	fi
+else
+	echo ""
+	echo "Alright. If you want to add udev rules later, find the list of usb ports in usb.portlist, and add them manually to udev."
+fi
+echo ""
+
+
+
+echo "Done."
+
+
