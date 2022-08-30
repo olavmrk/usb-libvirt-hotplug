@@ -26,39 +26,50 @@ fi
 python3 monitor.py
 
 
-
-YN=y
-echo "Do you want to add found usb ports automatically to udev rules? Y/n"
-read YN
-
-if [ $YN = y ]
+# check if portlist file is empty
+if [ ! -z $(grep '[^[:space:]]' usb.portlist) ]
 then
-	echo ""
-	echo "Proceeding with automatic addition of udev rules..."
-	echo "USB devices will be attached to the first started VM on your host. If you want to change this behaviour,"
-	echo "go to your udev rules, find 99-libvirt-usb-hotplug.rules and add the name of the vm you want to reroute devices to as an option to the RUN script."
-	echo ""
-	
-	while IFS= read -r line; do
-	    devpath=$(echo $line | sed "s/DEVPATH=//")
-	    echo "Adding udev rule for $devpath..."
-	    echo "SUBSYSTEM==\"usb\",DEVPATH==\"$devpath\",RUN+=\"$HOTPLUG_SCRIPT\"" >> /etc/udev/rules.d/99-libvirt-usb-hotplug.rules
-	done < usb.portlist
-	
-	echo ""
-	echo "Should the script remove usb.portlist file?  Y/n"
-	echo "(All devices from it were added to udev rules, and it is not necessary for the rerouting to function properly)"
+	echo "Do you want to add found usb ports automatically to udev rules? Y/n"
 	read YN
-	
-	YN=y
-	if [ $YN = y ]
+
+	if [ -z $YN ]; then YN=y; fi	
+	if [ $YN = n ]
 	then
+		echo ""
+		echo "Alright. If you want to add udev rules later, find the list of usb ports in usb.portlist, and add them manually to udev."	
+		
+		
+	else
+		echo ""
+		echo "Proceeding with automatic addition of udev rules..."
+		echo "USB devices will be attached to the first started VM on your host. If you want to change this behaviour,"
+		echo "go to your udev rules, find 99-libvirt-usb-hotplug.rules and add the name of the vm you want to reroute devices to as an option to the RUN script."
+		echo ""
+		
+		while IFS= read -r line; do
+		    devpath=$(echo $line | sed "s/DEVPATH=//")
+		    echo "Adding udev rule for $devpath..."
+		    echo "SUBSYSTEM==\"usb\",DEVPATH==\"$devpath\",RUN+=\"$HOTPLUG_SCRIPT\"" >> /etc/udev/rules.d/99-libvirt-usb-hotplug.rules
+		done < usb.portlist
+	fi	
+	
+	echo ""
+	echo "All devices from usb.portlist file were added to udev rules, and it is not necessary for the rerouting to function properly."
+	echo "Should the script remove usb.portlist file?  Y/n"
+	read YN
+		
+	if [ -z $YN ]; then YN=y; fi
+	if [ $YN = n ]
+	then	
+		echo "Skipping usb.portlist file removal..."
+	else
 		echo "Ok, removing usb.portlist file..."
-		rm usb.portlist
+		rm usb.portlist		
 	fi
 else
-	echo ""
-	echo "Alright. If you want to add udev rules later, find the list of usb ports in usb.portlist, and add them manually to udev."
+	echo "No ports were found, skipping..."
+	echo "Removing usb.portlist file, since it's empty..."
+	rm usb.portlist
 fi
 echo ""
 
