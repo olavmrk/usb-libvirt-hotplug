@@ -27,7 +27,7 @@ python3 monitor.py
 
 
 # check if portlist file is empty
-if [ ! -z $(grep '[^[:space:]]' usb.portlist) ]
+if [[ ! -z $(grep '[^[:space:]]' usb.portlist) ]]
 then
 	echo "Do you want to add found usb ports automatically to udev rules? Y/n"
 	read YN
