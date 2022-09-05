@@ -25,8 +25,14 @@ fi
 
 DOMAIN="$1"
 if [ -z "${DOMAIN}" ]; then
-  echo "Missing libvirt domain parameter for ${PROG}." >&2
-  exit 1
+  DOMAIN=$(virsh list --name)
+  if [ -z "${DOMAIN}" ]; then 
+    echo "No running libvirt domain found for ${PROG}." >&2
+    exit 1
+  else
+    # set the longest running VM as a target domain
+    DOMAIN=$(echo $DOMAIN | head -n 1)
+  fi
 fi
 
 
@@ -62,12 +68,12 @@ if [ -z "${ACTION}" ]; then
   echo "Missing udev ACTION environment variable." >&2
   exit 1
 fi
-if [ "${ACTION}" == 'add' ]; then
+if [ "${ACTION}" == 'bind' ]; then
   COMMAND='attach-device'
-elif [ "${ACTION}" == 'remove' ]; then
+elif [ "${ACTION}" == 'unbind' ]; then
   COMMAND='detach-device'
 else
-  echo "Invalid udev ACTION: ${ACTION}" >&2
+  echo "Unsupported udev ACTION: ${ACTION}" >&2
   exit 1
 fi
 
